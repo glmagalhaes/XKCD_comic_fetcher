@@ -2,6 +2,7 @@ require 'nokogiri'
 require 'sax-machine'
 require 'open-uri'
 require 'sequel'
+require 'timeout'
 
 class AtomEntry
 	include SAXMachine
@@ -27,27 +28,59 @@ class Atom
 end
 
 #this will be the code to download all the old comics
-def download(site="http://xkcd.com/1" , comic_number = 1)
+#it returns the next comic url if available
+def download(site="http://xkcd.com/1")
 	src_comic = ''
 	alt_text = ''
-	comic = Nokogiri::HTML(open(site))
-	title = comic.xpath("//div[@id='ctitle']").text
-	comic.xpath("//div[@id='comic']").css('img').map{ |i|
-		open('./xkcd_comics/'<<File.basename(i['src']), 'wb') do |file|
-			file << open(i['src']).read
-		end
-		src_comic =  i['src']
-		alt_text =  i['title']
-	}
+	begin
+		Timeout::timeout(60){	
+			comic = Nokogiri::HTML(open(site))
+			title = comic.xpath("//div[@id='ctitle']").text
+			comic.xpath("//div[@id='comic']").css('img').map{ |i|
+				open('./xkcd_comics/'<<File.basename(i['src']), 'wb') do |file|
+					file << open(i['src']).read
+				end
+				src_comic =  i['src']
+				alt_text =  i['title']
+			}
 
+			comic.xpath("//ul[@class='comicNav']").css('a').map{ |i|
+				if i['rel'] == "next"
+					if i['href'] == '#'
+						print 'Finished Download'
+						return ''
+					end
+
+					$comics.insert(:id => i['href'].split('/').join.to_i , :title => title, :file => src_comic, :alt => alt_text)
+					print "Downloaded comic #%s \n" % i['href'].split('/').join
+					return 'http://xkcd.com' << i['href']
+
+				end
+			}
+		}
+	rescue Timeout::Error
+		print "Error Downloading comic #%s \n" % i['href'].split('/').join
+		retry
+	end
+end
+
+#Finds Last downloaded comic and continue from there until it's over
+def update()
+	comic = ''
+	begin
+		Timeout::timeout(5){	
+			comic = Nokogiri::HTML(open('http://xkcd.com/' << $comics.max(:id).to_s << '/' ))
+		}
+	rescue Timeout::Error
+		print  "Error Downloading comic #%s \n" % $comics.max(:id)
+		sleep 0.42 and retry
+	end
 	comic.xpath("//ul[@class='comicNav']").css('a').map{ |i|
 		if i['rel'] == "next"
-			if i['href'] == '#'
-				print 'Finished Download'
-				return
-			end
-			$comics.insert(:id => comic_number, :title => title, :file => src_comic, :alt => alt_text)
-			download("http://xkcd.com" << i['href'], comic_number+1)
+				next_comic = "http://xkcd.com" << i['href']
+				begin
+					next_comic = download(next_comic)
+				end while next_comic != ""
 			return
 		end
 	}
@@ -103,7 +136,14 @@ while !exit do
 		option = gets.chomp
 		if '1' == option
 			unselected = false
-			download()
+			next_comic = "http://xkcd.com/1"
+			begin
+				next_comic = download(next_comic)
+			end while next_comic != ""
+		end
+		if '2' == option
+			unselected = false
+			update()
 		end
 		if '3' == option
 			unselected = false
