@@ -24,15 +24,36 @@ class Atom
 	elements :entry, :as => :entries, :class => AtomEntry
 end
 
-feed = Atom.parse(open("http://xkcd.com/atom.xml"))
+#this will be the code to download all the old comics
+def download(site="http://xkcd.com/1" , comic_number = 1)
+	comic = Nokogiri::HTML(open(site))
+	comic.xpath("//div[@id='comic']").css('img').map{ |i|
+		print "%s\n" % i['src']
+		print "%s\n\n" % i['title']
+	}
 
+	comic.xpath("//ul[@class='comicNav']").css('a').map{ |i|
+		if i['rel'] == "next"
+			if i['href'] == '#'
+				print 'Finished Download'
+				return
+			end
+			download("http://xkcd.com" << i['href'], comic_number+1)
+			return
+		end
+	}
+end
+
+#this will be the code to keep downloading new comics
+feed = Atom.parse(open("http://xkcd.com/atom.xml"))
 feed.entries.each do |entry|
 	print "%s\n" % entry.title
-	description = Nokogiri::HTML(entry.summary).css('img').map{ |i| 
-			print "%s\n" % i['src']
-			print "%s\n\n" % i['alt']
+	Nokogiri::HTML(entry.summary).css('img').map{ |i| 
+		print "%s\n" % i['src']
+		print "%s\n\n" % i['alt']
 	}
-#	item.xpath("//description") do |description|
-#		print "%s\n" % description
-#	end
 end
+
+download()
+
+
