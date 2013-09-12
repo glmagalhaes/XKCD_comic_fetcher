@@ -1,31 +1,7 @@
 require 'nokogiri'
-require 'sax-machine'
 require 'open-uri'
 require 'sequel'
 require 'timeout'
-
-class AtomEntry
-	include SAXMachine
-	element :title
-	# the :as argument makes this available through atom_entry.author instead of .name
-	element :name, :as => :author
-	element "feedburner:origLink", :as => :url
-	element :summary
-	element :content
-	element :published
-end
-
-# Class for parsing Atom feeds
-class Atom
-	include SAXMachine
-	element :title
-	# the :with argument means that you only match a link tag that has an attribute of :type => "text/html"
-	# the :value argument means that instead of setting the value to the text between the tag,
-	# it sets it to the attribute value of :href
-	element :link, :value => :href, :as => :url, :with => {:type => "text/html"}
-	element :link, :value => :href, :as => :feed_url, :with => {:type => "application/atom+xml"}
-	elements :entry, :as => :entries, :class => AtomEntry
-end
 
 #this will be the code to download all the old comics
 #it returns the next comic url if available
@@ -37,10 +13,10 @@ def download(site="http://xkcd.com/1")
 			comic = Nokogiri::HTML(open(site))
 			title = comic.xpath("//div[@id='ctitle']").text
 			comic.xpath("//div[@id='comic']").css('img').map{ |i|
-				open('./xkcd_comics/'<<File.basename(i['src']), 'wb') do |file|
+				open('./xkcd_comics/'<< File.basename(i['src']), 'wb') do |file|
 					file << open(i['src']).read
 				end
-				src_comic =  i['src']
+				src_comic =  File.basename(i['src'])
 				alt_text =  i['title']
 			}
 
@@ -77,10 +53,14 @@ def update()
 	end
 	comic.xpath("//ul[@class='comicNav']").css('a').map{ |i|
 		if i['rel'] == "next"
+			if !(i['href'] == '#')
 				next_comic = "http://xkcd.com" << i['href']
 				begin
 					next_comic = download(next_comic)
 				end while next_comic != ""
+			else
+				print "Finished Updating Comics!\n"
+			end
 			return
 		end
 	}
@@ -95,15 +75,6 @@ def info(id)
 	}
 end
 
-#this will be the code to keep downloading new comics
-feed = Atom.parse(open("http://xkcd.com/atom.xml"))
-feed.entries.each do |entry|
-	print "%s\n" % entry.title
-	Nokogiri::HTML(entry.summary).css('img').map{ |i| 
-		print "%s\n" % i['src']
-		print "%s\n\n" % i['alt']
-	}
-end
 
 #comic DB
 #connect to database
@@ -123,6 +94,8 @@ if !Dir.exists?('xkcd_comics')
 	Dir.mkdir('xkcd_comics')
 end
 
+
+
 exit = false
 while !exit do 
 	print "Menu\n\n"
@@ -136,7 +109,7 @@ while !exit do
 		option = gets.chomp
 		if '1' == option
 			unselected = false
-			next_comic = "http://xkcd.com/1"
+			next_comic = "http://xkcd.com/1/"
 			begin
 				next_comic = download(next_comic)
 			end while next_comic != ""
