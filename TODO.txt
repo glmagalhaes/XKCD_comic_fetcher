@@ -1,7 +1,10 @@
 TODO
 
-- Refactoring is the word of the day, put all the code that are in
-functions inside classes keeping the scope and encapsulation.
+- Refactoring is the word of the day.
+
+- Make the methods First and each_with_index
+
+- Make the method [] rise an OUT OF BOUNS EXCEPTION
 
 - Make update run in it's own thread so you wont't need to wait for
 it to download every comic. With that make it possible to stop the
