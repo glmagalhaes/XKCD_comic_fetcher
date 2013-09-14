@@ -8,6 +8,7 @@ while !exit do
 	print "1  - Update\n"
 	print "2  - List All comics\n"
 	print "3  - Info From Comic #\n"
+	print "4  - Stop Updating \n"
 	print "99 - Quit\n\n"
 	unselected = true
 	while unselected do
@@ -39,6 +40,10 @@ while !exit do
 				print "file - %s\n" % comic.file
 				print "alt - %s\n" % comic.alt
 			end
+		end
+		if '4' == option
+			unselected = false
+			comics.stop_update
 		end
 		if '99' == option
 			unselected = false

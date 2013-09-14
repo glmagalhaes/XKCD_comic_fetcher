@@ -6,8 +6,6 @@ TODO
 
 - Make the method [] rise an OUT OF BOUNS EXCEPTION
 
-- Make update run in it's own thread so you wont't need to wait for
-it to download every comic. With that make it possible to stop the
-update, and restart it without the need of closing the program.
+- Multi Thread need to be tested for eventual bugs
 
 - Make a GUI.

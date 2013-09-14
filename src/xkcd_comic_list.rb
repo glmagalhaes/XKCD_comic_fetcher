@@ -26,15 +26,27 @@ class XKCDComicList
 		if !Dir.exists?('xkcd_comics')
 			Dir.mkdir('xkcd_comics')
 		end
+		
+		@update_thread = nil
 	end
 	
 	def update
+		#if a thread is alredy running don't start a new one
+		if @update_thread != nil && @update_thread.alive?
+			@update_thread.run
+			return
+		end
+		#verifies if it's the first time running
 		if (@comics.max(:id) == nil)
-			next_comic = "http://xkcd.com/1/"
-			begin
-				next_comic = download(next_comic)
-			end while next_comic != ""
-			print "Finished Updating Comics!\n"
+			#Start a thread to update comics
+			@update_thread = Thread.new do
+				next_comic = "http://xkcd.com/1/"
+				begin
+					next_comic = download(next_comic)
+				end while next_comic != ""
+				print "Finished Updating Comics!\n"
+				clean_thread
+			end
 		else
 			comic = ''
 			begin
@@ -48,10 +60,13 @@ class XKCDComicList
 			comic.xpath("//ul[@class='comicNav']").css('a').map{ |i|
 				if i['rel'] == "next"
 					if !(i['href'] == '#')
-						next_comic = "http://xkcd.com" << i['href']
-						begin
-							next_comic = download(next_comic)
-						end while next_comic != ""
+						@update_thread = Thread.new do
+							next_comic = "http://xkcd.com" << i['href']
+							begin
+								next_comic = download(next_comic)
+							end while next_comic != ""
+							clean_thread
+						end
 					else
 						print "Finished Updating Comics!\n"
 					end
@@ -61,8 +76,14 @@ class XKCDComicList
 		end
 	end
 	
-#	def stop_update
-#	end
+	def stop_update
+		if @update_thread != nil && @update_thread.alive?
+			Thread.kill(@update_thread)
+			clean_thread
+		else
+			return
+		end
+	end
 
 	#TODO: Add throw when value is out of bounds
 	def [](i)
@@ -92,6 +113,10 @@ class XKCDComicList
 	
 	
 	private
+
+	def clean_thread
+		@update_thread = nil
+	end
 	
 	def download(site)
 		begin
