@@ -22,10 +22,10 @@ while !exit do
 			print "Comics:\n "
 			comics.each { |comic|
 				print "---=====---\n"
-				print "id - %s\n" % comic['id']
-				print "title - %s\n" % comic['title']
-				print "file - %s\n" % comic['file']
-				print "alt - %s\n" % comic['alt']
+				print "id - %s\n" % comic.id
+				print "title - %s\n" % comic.title
+				print "file - %s\n" % comic.file
+				print "alt - %s\n" % comic.alt
 			}
 		end
 
@@ -33,11 +33,11 @@ while !exit do
 			unselected = false
 			print "Comic ID: "
 			comic = comics[gets.chomp.to_i]
-			if comic.is_a?(Hash)
-				print "id - %s\n" % comic['id']
-				print "title - %s\n" % comic['title']
-				print "file - %s\n" % comic['file']
-				print "alt - %s\n" % comic['alt']
+			if comic.is_a?(XKCDComic)
+				print "id - %s\n" % comic.id
+				print "title - %s\n" % comic.title
+				print "file - %s\n" % comic.file
+				print "alt - %s\n" % comic.alt
 			end
 		end
 		if '99' == option

@@ -3,7 +3,7 @@ require 'nokogiri'
 require 'open-uri'
 require 'sequel'
 require 'timeout'
-
+require './xkcd_comic'
 class XKCDComicList
 	include Enumerable
 	
@@ -68,12 +68,7 @@ class XKCDComicList
 	def [](i)
 		begin
 			@comics.where(:id => i).map{  |comic| 
-				i = Hash.new
-				i['id'] = comic[:id]
-				i['title'] =  comic[:title]
-				i['file'] = "./xkcd_comics/" << comic[:file]
-				i['alt'] =comic[:alt]
-				return i
+				return XKCDComic.new(comic[:id] , comic[:title] , "./xkcd_comics/" << comic[:file] , comic[:alt])
 			}	
 		rescue
 			print 'Out of bounds\n'
@@ -85,12 +80,7 @@ class XKCDComicList
 	#iterates through each mebmer of the database
 	def each
 		@comics.each{  |comic| 
-			i = Hash.new
-			i['id'] = comic[:id]
-			i['title'] =  comic[:title]
-			i['file'] = "./xkcd_comics/" << comic[:file]
-			i['alt'] =comic[:alt]
-			yield i 
+			yield XKCDComic.new(comic[:id] , comic[:title] , "./xkcd_comics/" << comic[:file] , comic[:alt])
 		}	
 	end
 	

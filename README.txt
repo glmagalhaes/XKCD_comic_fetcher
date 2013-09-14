@@ -7,6 +7,7 @@ This program uses this gems:
 
 - NOKOGIRI
 - SEQUEL
+- SQLITE3
 
 This program download every comic from the site http://www.xkcd.com
 and stores info like Alt-Text and Title in a database.
