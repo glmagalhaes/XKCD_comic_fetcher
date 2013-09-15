@@ -21,7 +21,9 @@
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 require './xkcd_comic_list.rb'
+#require './reader_window'
 
+#ReaderWindow.new
 comics = XKCDComicList.new
 
 exit = false

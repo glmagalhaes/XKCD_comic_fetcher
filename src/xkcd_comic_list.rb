@@ -20,6 +20,7 @@
 #IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+require 'rubygems'
 require 'forwardable'
 require 'nokogiri'
 require 'open-uri'
@@ -32,7 +33,7 @@ class XKCDComicList
 	
 	def initialize
 		#connect to database
-		db = Sequel.connect('sqlite://comics.db')
+		db = Sequel.connect('jdbc:sqlite://comics.db')
 
 		#create table if it does't exist yet
 		#id title file alt

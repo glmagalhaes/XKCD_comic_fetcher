@@ -20,16 +20,43 @@
 #IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-class XKCDComic
-	attr_reader :id, :title, :file, :alt
-	def initialize(id, title, file, alt)
-		@id = id;
-		@title = title
-		@file = file
-		@alt = alt
+require 'xkcd_comic_list'
+
+include  Java
+
+import java.awt.BorderLayout
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
+
+import javax.swing.JFrame
+import javax.swing.JList
+import javax.swing.DefaultListModel
+import javax.swing.JScrollPane
+
+class ReaderWindow < JFrame
+	def initialize
+		super "XKCD Reader"
+		init_ui
 	end
 
-	def to_s
-		return @id.to_s << ' - ' << @title
-	end
+	def init_ui
+		self.setSize 1280, 720
+        self.setDefaultCloseOperation JFrame::EXIT_ON_CLOSE
+        self.setLocationRelativeTo nil
+
+        @comics = XKCDComicList.new
+
+        @model = DefaultListModel.new()
+        @comics.each do |comic|
+	        @model.addElement(comic);
+	    end
+
+	    @comic_list = JList.new(@model)
+	    getContentPane.add(JScrollPane.new(@comic_list));
+
+	    pack
+	    setVisible true
+   	end
 end
+
+ReaderWindow.new
