@@ -21,6 +21,7 @@
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 require 'xkcd_comic_list'
+require './ComicListListener'
 
 include  Java
 
@@ -32,6 +33,8 @@ import javax.swing.JFrame
 import javax.swing.JList
 import javax.swing.DefaultListModel
 import javax.swing.JScrollPane
+import javax.swing.event.ListSelectionEvent
+import javax.swing.event.ListSelectionListener
 
 class ReaderWindow < JFrame
 	def initialize
@@ -52,8 +55,9 @@ class ReaderWindow < JFrame
 	    end
 
 	    @comic_list = JList.new(@model)
-	    getContentPane.add(JScrollPane.new(@comic_list));
+	    getContentPane.add(JScrollPane.new(@comic_list))
 
+        dataList.addListSelectionListener(ComicListListener.new)
 	    pack
 	    setVisible true
    	end

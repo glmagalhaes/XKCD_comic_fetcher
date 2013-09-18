@@ -26,7 +26,7 @@ require 'nokogiri'
 require 'open-uri'
 require 'sequel'
 require 'timeout'
-require './xkcd_comic'
+require './XKCDComic'
 
 class XKCDComicList
 	include Enumerable

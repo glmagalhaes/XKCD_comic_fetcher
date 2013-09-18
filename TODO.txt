@@ -2,8 +2,6 @@ TODO
 
 - Refactoring is the word of the day.
 
-- Make the methods each_with_index
-
 - Multi Thread need to be tested for eventual bugs
 
 - Make a GUI.

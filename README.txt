@@ -35,11 +35,18 @@ http://creativecommons.org/licenses/by-nc/2.5/
 
 
 
-This program uses this gems:
+This program uses this gems under Ruby interpreter 1.9.2:
 
 - NOKOGIRI
 - SEQUEL
 - SQLITE3
+
+this program uses this gems under JRuby:
+
+- NOKOGIRI
+- SEQUEL
+- JDBC-SQLITE3
+- ACTIVERECORD-JDBCSLITE3-ADAPTER
 
 This program download every comic from the site http://xkcd.com
 and stores info like Alt-Text and Title in a database.
